@@ -1,0 +1,49 @@
+.board {
+	margin: 0.1% 05%;
+	border:  0.5em black solid;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	position: fixed;
+	padding: 2%;
+	width: 1200px;
+}
+.hideName {
+	visibility: hidden;
+}
+.row1 {
+	border: 0.1em black solid;
+}
+.square {
+	border: 0.1em black solid;
+	padding: 6%;
+	flex: 1 0 0;
+}
+.rowStarts {
+	align-self: flex-start;
+}
+.rowEnds {
+	align-self: flex-end;
+}
+
+.square22 {
+	background: border-box grey;
+}
+.square02, .square42, .square20, .square24 {
+	background: border-box lightgrey;
+}
+.pawns {
+	padding-right: 0.25em;
+	padding-left: 0.25em;
+	border: 0.2em solid;
+	border-radius: 80%;
+}
+.pawn1 {
+	color: red;
+	border-color: green;	
+}
+
+.pawn2 {
+	color: blue;
+	border-color: brown;	
+}
