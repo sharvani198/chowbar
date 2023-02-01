@@ -6,6 +6,8 @@ function Pawn(props) {
 		<span className={`pawns pawn${props.pid}`} id={props.id}>{props.id}</span>
 	);
 }
+
+
 class Player extends React.Component {
 	constructor(props) {
 		super(props);
@@ -27,7 +29,7 @@ class Player extends React.Component {
 
 		return (
 			<React.Fragment>
-				{this.state.isTurn? (<div>My turn!!!!</div>):(<div></div>)}
+			
 			</React.Fragment>
 		); 
 	}

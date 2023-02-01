@@ -47,3 +47,40 @@
 	color: blue;
 	border-color: brown;	
 }
+.gameBox {
+	display: flex;
+	justify-content: space-around;
+}
+.gameBox div {
+	margin: 1%;
+}
+.playerInfo {
+	font-size: x-large;
+	margin-left: 20%;
+	flex: 3 0 0;
+}
+.playingBox {
+	flex: 4 0 0;
+
+}
+button {
+	background-color: white;
+	color: grey;
+	border: 1px solid black;
+	border-radius: 5%;
+	padding: 1%;
+	font-size: x-large;
+	cursor: pointer;
+
+}
+button:hover {
+	background-color: lightgrey;
+}
+div.diceValue {
+	padding: 1%;
+	border:  0.1em solid black;
+	border-radius: 5%;
+	display: inline-block;
+	margin: 1%;
+	font-size: x-large;
+}

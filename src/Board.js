@@ -28,7 +28,7 @@ class Board extends React.Component {
 			} 
 		}
 		this.state.squarePawnPos = squarePawnPos;
-		console.log(this.state.squarePawnPos)
+		//console.log(this.state.squarePawnPos)
 	}
 	renderPawn(sq) {
 		if (this.state.squarePawnPos.hasOwnProperty(sq)) {
