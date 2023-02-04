@@ -1,12 +1,15 @@
+.App {
+	width: 70vw;
+	margin: 0.1vw 15vw;
+}
 .board {
-	margin: 0.1% 05%;
+	margin: 1%;
 	border:  0.5em black solid;
-	display: flex;
+	display: inline-flex;
 	flex-wrap: wrap;
 	align-items: stretch;
-	position: fixed;
-	padding: 2%;
-	width: 1200px;
+	width: 65vw;
+
 }
 .hideName {
 	visibility: hidden;
@@ -14,10 +17,19 @@
 .row1 {
 	border: 0.1em black solid;
 }
+
+.squares {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: stretch;
+	width: auto;
+	justify-content: center;
+}
+
 .square {
 	border: 0.1em black solid;
-	padding: 6%;
-	flex: 1 0 0;
+	padding: 4% 2% ;
+	width: 10vw;
 }
 .rowStarts {
 	align-self: flex-start;
@@ -32,55 +44,98 @@
 .square02, .square42, .square20, .square24 {
 	background: border-box lightgrey;
 }
+
+.square.highlight {
+	border-color: yellow;
+}
 .pawns {
 	padding-right: 0.25em;
 	padding-left: 0.25em;
 	border: 0.2em solid;
 	border-radius: 80%;
 }
-.pawn1 {
-	color: red;
+.pawns.pl0 {
 	border-color: green;	
 }
 
-.pawn2 {
-	color: blue;
-	border-color: brown;	
+.pawns.activePawn {
+	background-color: black;
+	color: white;
+	cursor: pointer;
+}
+.pawns.pl1 {
+	border-color: maroon;	
+}
+.pawns.pl2 {
+	border-color: indigo;	
+}
+.pawns.pl3 {
+	border-color: purple;	
+}
+
+
+.playerAvatar {
+	border:  0.7em solid;
+	border-radius: 75%;
+	cursor: pointer;
+}
+
+.game {
+	display: flex;
+flex-wrap: wrap;
+
 }
 .gameBox {
 	display: flex;
 	justify-content: space-around;
+	width: 100%;
 }
-.gameBox div {
-	margin: 1%;
+.gameBox .currentPlayer {
+	margin-left: 5%;
 }
 .playerInfo {
 	font-size: x-large;
 	margin-left: 20%;
 	flex: 3 0 0;
 }
-.playingBox {
-	flex: 4 0 0;
 
+ .playingBox, .currentTurn {
+	display: inline-flex;
+	justify-content: center;
+	gap: 2vw;
+	align-items: baseline;
 }
-button {
-	background-color: white;
-	color: grey;
-	border: 1px solid black;
+.turnButtons, .playerButtons {
 	border-radius: 5%;
-	padding: 1%;
+	padding: 0.5%;
 	font-size: x-large;
-	cursor: pointer;
-
+	margin: 1%;
+	border: 1px solid black;
+	width: 10vw;
 }
-button:hover {
+
+.turnButtons {
+	background-color: white;	
+	color: grey;
+	cursor: pointer;
+}
+
+.turnButtons:hover {
 	background-color: lightgrey;
 }
-div.diceValue {
-	padding: 1%;
+.diceValue {
+	padding: 2%;
 	border:  0.1em solid black;
 	border-radius: 5%;
-	display: inline-block;
-	margin: 1%;
 	font-size: x-large;
+	flex-grow: 3;
+	width: 5vw;
+}
+.playerMessage {
+	border:  1px dashed gray;
+	padding: 1%;
+	margin: 1%;
+	width: 80%;
+	flex:  1 0 0;
+
 }

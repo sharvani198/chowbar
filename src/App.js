@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './App.css';
 import Game from './Game';
-import {storeState, getState, StateSlice} from './utils.js'
+import {storeState, getState, useValueSetter, getSessionState, setSessionState, setCurrentPlayer} from './utils.js'
 var numOfPlayers = 0; // Should this be dynamic input?
 
 
@@ -25,7 +25,9 @@ function PlayerCount(props) {
      </div>
     );
 }
-
+function StateSlice(props) {
+  useValueSetter(setCurrentPlayer, props.currentPlayer);
+}
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -36,7 +38,7 @@ class App extends React.Component {
       },
       currentPlayer:null
     }
-    this.state.currentPlayer = new URLSearchParams(window.location.search).get("player") || sessionStorage.getItem("currentPlayer");
+    this.state.currentPlayer = new URLSearchParams(window.location.search).get("player") || getSessionState("currentPlayer");
   }
   choosePlayer(i){
     let gameSetup = this.state.gameSetup;
@@ -44,12 +46,12 @@ class App extends React.Component {
     this.setState({gameSetup: gameSetup});
     storeState("playing", this.state.gameSetup.playing);
     this.state.currentPlayer = i;
-    sessionStorage.setItem("currentPlayer", this.state.currentPlayer);
+    setSessionState("currentPlayer", this.state.currentPlayer);
   }
   render() {
     let playerChoices = [];
     this.state.gameSetup.playing.forEach((p,i) => {
-      playerChoices.push(<button key={i} disabled={p} onClick={()=>this.choosePlayer(i)}>{`Player${i+1}`}</button>);
+      playerChoices.push(<button className="playerButtons" key={i} disabled={p} onClick={()=>this.choosePlayer(i)}>{`Player${i+1}`}</button>);
     });
     return (
       <div className="App">

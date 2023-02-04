@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 
 function Pawn(props) {
 	return (
-		<span className={`pawns pawn${props.pid}`} id={props.id}>{props.id}</span>
+		<span className={`pawns pl${props.plid} ${props.activeClass}` } onClick={() => props.pawnClick()} id={props.id}>{props.id}</span>
 	);
 }
 
