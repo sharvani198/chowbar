@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './App.css';
 import Game from './Game';
-import {storeState, getState, useValueSetter, getSessionState, setSessionState, setCurrentPlayer} from './utils.js'
+import {storeState, getState, useValueSetter, getSessionState, setSessionState, setCurrentPlayer, clearState} from './utils.js'
 var numOfPlayers = 0; // Should this be dynamic input?
 
 
@@ -69,7 +69,9 @@ class App extends React.Component {
                 <StateSlice currentPlayer={this.state.currentPlayer} playing={this.state.gameSetup.playing}/>
                 <Game playing={this.state.gameSetup.playing} currentPlayerIndex={this.state.currentPlayer}/>
               </div>
-         }      
+         } 
+
+         <footer id="footer"><button className="resetButton" onClick={() => clearState()}>Reset</button></footer>     
       </div>
       );
   }

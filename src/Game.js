@@ -5,10 +5,12 @@ import {Player} from './Player'
 import {randomiseInitialTurn, randomDiceValue, 
 storeState, getState, useValueSetter, useValueGetter, 
 getSessionState, setSessionState, 
-setDiceValue, setActivePlayer} from './utils'
+setDiceValue, setActivePlayer, setAllPawnLocs} from './utils'
 import "./game.css"
 
-const HOME_SQUARES = ["square02", "square42", "square20", "square24"];
+let prevState;
+
+
 const PLAYER_ATTIBUTES = [
 	{	home:"square02",
 		colours:'green',
@@ -28,25 +30,24 @@ const PLAYER_ATTIBUTES = [
   	}
 ]
 
-const WIN_SQUARE = "square22";
-
 const TURN_STATES = {yetToRoll:'yetToRoll',rolledButNotPlayed:'rolledButNotPlayed', pawnMoved:'pawnMoved', turnPlayed:'turnPlayed'};
+
 
 function RollDice(props) {
 	//const [diceValue, setDice] = React.useState("X");
+
 	// React.useEffect(() => {
 
 	// })
 	// useValueSetter(setDiceValue, Number(diceValue));
 	//useValueSetter(setActivePlayer, props.activePlayer);
 	// storeState('diceValue', diceValue);
-	if (props.currentTurnState==TURN_STATES.rolledButNotPlayed) {
-		return ;
-	}
+	let disabled = props.diceValue!=null || props.currentTurnState==TURN_STATES.rolledButNotPlayed;
 	return (<React.Fragment>
 				<div className="playTurn">
-					<button className="turnButtons" disabled={props.dice!=null} onClick={() => {
+					<button type="button" className="turnButtons" disabled={disabled} onClick={() => {
 						let dice = randomDiceValue(); 
+						//setDice(dice);
 						props.onRoll(dice);
 					}}>Roll Dice</button>
 				</div>
@@ -60,7 +61,11 @@ function RollDice(props) {
 function PlayTurn(props) {
 	const disabled = props.currentTurnState != TURN_STATES.pawnMoved ;
 	return (
-		<button className="turnButton" disabled={disabled} onClick={() => props.updateTurn()}>Done</button>
+		<div> 
+			<button className="turnButtons" disabled={disabled} onClick={() => props.updateTurn()}>Done</button>
+
+			<button className="turnButtons" disabled={disabled} onClick={() => props.undoTurn()}>Undo</button>
+		</div>
 	)
 }
 function DisplayMessage(props) {
@@ -69,6 +74,7 @@ function DisplayMessage(props) {
 class Game extends React.Component {
 	constructor(props) {
 		super(props);
+		
 		this.state = {
 			players: [],
 			currentPlayer: null
@@ -79,20 +85,33 @@ class Game extends React.Component {
 				players[i] = {
 					name: `Player${i+1}`,
 					pid: i,
+					pawnHitStatus:false,
 					home: PLAYER_ATTIBUTES[i].home,
 					pawnLocs: Array(4).fill(PLAYER_ATTIBUTES[i].home) //initial pawn location is home square
 				}
 		});
 		this.state.playerMessage = null;
+		const allPawnLocs = getState("allPawnLocs");
+		if(allPawnLocs) {
+			for(let k in allPawnLocs) {
+				const [pid,i] = k.split("-");
+				players[pid].pawnLocs[i] = allPawnLocs[k]; 
+			}
+		}
 		this.state.players = players;
 		this.state.currentPlayer = this.state.players[props.currentPlayerIndex];
 		this.state.turnPid = randomiseInitialTurn(props.playing.length);
-		this.state.diceValue = getState("diceValue") || null;
+		this.state.diceValue = null;
 		this.state.activePlayer =  null;
+		if(getState("prevTurn")!=null) {
+			this.state.turnPid = players[(Number(getState('prevTurn'))+1) % players.length].pid;
+			console.log('setting turn '+this.state.turnPid);
+		}
+		this.state.currentPlayer.pawnHitStatus = getSessionState("pawnHitStatus")|| false;
 	}
 	rollHandler(dice) {
 		this.state.diceValue=dice;
-		let prevState = this.state;
+		prevState = this.state;
 		prevState.diceValue = dice;
 		prevState.playerMessage = `You rolled ${dice}. Please play your turn then click Done below.`;
 		prevState.activePlayer = prevState.currentPlayer;
@@ -100,18 +119,39 @@ class Game extends React.Component {
 		this.setState(prevState);
 	}
 
-	turnHandler() {
-
-	}
-
-	updateTurn(turnState) {
-		let prevState =this.state;
+	turnPlayedHandler(turnState) {
+		prevState =this.state;
 		prevState.currentTurnState = turnState;
 		prevState.activePlayer =  null;
-		this.setState(prevState);		
+		storeState("prevTurn", this.state.currentPlayer.pid);
+		prevState.turnPid = prevState.players[(this.state.currentPlayer.pid +1) % prevState.players.length].pid;
+		const allPawnLocs = getState("allPawnLocs");
+		for(let k in allPawnLocs) {
+			const [pid,i] = k.split("-");
+			if(pid == this.state.currentPlayer.pid) {
+				this.state.currentPlayer.pawnLocs[i] = allPawnLocs[k];
+			}
+		}
+		prevState.players[this.state.currentPlayer.pid] = this.state.currentPlayer;
+		this.setState(prevState);
+	}
+	undoTurn() {
+		console.log('Will try to undo turn here');
+	}
+	updateTurn(pawnHitStatus, pawn) {
+		prevState =this.state;
+		prevState.currentTurnState = TURN_STATES.pawnMoved;
+		prevState.activePlayer =  null;
+		if (pawnHitStatus) {
+			prevState.currentPlayer.pawnHitStatus = true;
+			prevState.playerMessage = `You hit a pawn belonging to ${prevState.players[pawn[0]].name}! It has been sent home.`;
+			setSessionState("pawnHitStatus", this.state.currentPlayer.pawnHitStatus);
+
+		}		
+		this.setState(prevState);
 	}
 	messageSetter(msg) {
-		let prevState =this.state;
+		prevState =this.state;
 		prevState.playerMessage = msg;
 		this.setState(prevState);
 	}
@@ -162,8 +202,14 @@ class Game extends React.Component {
 				}
 			</div>
 			<DisplayMessage msg={this.state.playerMessage}/>
-			<Board allPawnLocs={allPawnLocs} activePlayer={this.state.activePlayer} updateTurn={() => this.updateTurn(TURN_STATES.pawnMoved)}  path={PLAYER_ATTIBUTES[this.state.currentPlayer.pid].path} diceValue={this.state.diceValue} />
-			{yourTurn && <PlayTurn 	currentTurnState={this.state.currentTurnState} updateTurn={() => this.updateTurn(TURN_STATES.turnPlayed)} />}
+			<Board
+				pawnHitStatus = {this.state.currentPlayer.pawnHitStatus}
+			 	allPawnLocs={allPawnLocs}
+			 	activePlayer={this.state.activePlayer} 
+				updateTurn={(pawnHitStatus, pawn) => this.updateTurn(pawnHitStatus, pawn)} 
+			 	path={PLAYER_ATTIBUTES[this.state.currentPlayer.pid].path}
+			 	diceValue={this.state.diceValue} />
+			{yourTurn && <PlayTurn 	currentTurnState={this.state.currentTurnState} undoTurn={()=>this.undoTurn()} updateTurn={() => this.turnPlayedHandler(TURN_STATES.turnPlayed)} />}
 			</React.Fragment>
 		);
 

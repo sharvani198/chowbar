@@ -2,6 +2,11 @@
 	width: 70vw;
 	margin: 0.1vw 15vw;
 }
+#footer {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+ }
 .board {
 	margin: 1%;
 	border:  0.5em black solid;
@@ -46,7 +51,8 @@
 }
 
 .square.highlight {
-	border-color: yellow;
+	border-color: gold;
+	background-color: lightyellow;
 }
 .pawns {
 	padding-right: 0.25em;
@@ -119,8 +125,10 @@ flex-wrap: wrap;
 	color: grey;
 	cursor: pointer;
 }
-
-.turnButtons:hover {
+button[disabled] {
+	cursor: not-allowed;
+}
+.turnButtons:hover:not([disabled]) { 
 	background-color: lightgrey;
 }
 .diceValue {

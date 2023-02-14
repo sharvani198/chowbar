@@ -5,7 +5,8 @@ export const gameSlice = createSlice({
 	initialState: {
 			currentPlayer: null,
 			diceValue: null,
-			activePlayer: null
+			activePlayer: null,
+			allPawnLocs: {},
 		
 	},
 	reducers: {
@@ -18,8 +19,11 @@ export const gameSlice = createSlice({
 		setActivePlayer: (state, p) => {
 			state.activePlayer = p.payload;
 		},
+		setAllPawnLocs: (state, pawnLocs) => {
+			state.allPawnLocs = pawnLocs.payload;
+		}
 	}
 });
 
-export const { setCurrentPlayer, setDiceValue, setActivePlayer} = gameSlice.actions;
+export const { setCurrentPlayer, setDiceValue, setActivePlayer, setAllPawnLocs} = gameSlice.actions;
 

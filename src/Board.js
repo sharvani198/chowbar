@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {Pawn} from './Player';
-import {useValueGetter} from './utils'
+import {storeState, getState} from './utils'
+
+const HOME_SQUARES = ["square02", "square42", "square20", "square24"];
+const WIN_SQUARE = "square22";
 
 function Square(props) {
 
@@ -9,6 +12,7 @@ function Square(props) {
 			<div className={`${props.id} ${props.highlight} square ${props.rowClass}`} onClick={()=> props.squareClick()}> <div className="hideName">{props.id} </div> {props.children} </div>
 		);
 }
+let unDoableState;
 class Board extends React.Component {
 	constructor(props) {
 		super(props);
@@ -30,13 +34,19 @@ class Board extends React.Component {
 				squarePawnPos[props.allPawnLocs[k]] = [k];
 			} 
 		}
-
 		this.state.squarePawnPos = squarePawnPos;
 		this.state.pawnCanMove = {}
 		//console.log(this.state.squarePawnPos)
 	}
 	newSquare(sq,inc) {
-		return this.props.path[this.props.path.indexOf(sq.split("square")[1])+inc];
+		let pathIndex = this.props.path.indexOf(sq.split("square")[1]);
+		if(pathIndex>15 && this.props.pawnHitStatus==false) { //this is the inner squares which need a pawn hit.
+				console.log("YOU can't enter the inner square without hitting a pawn first.")
+			} else {
+				pathIndex = pathIndex+inc;
+		}
+		let newLoc = this.props.path[pathIndex]; 
+		return newLoc;
 	}
 	pawnMover(p,isActive,sq) {
 		let pawnCanMove = {}
@@ -68,11 +78,37 @@ class Board extends React.Component {
 			return pawnList;
 		}
 	}
+	checkPawnHit(p, sq) {
+		let pawns = this.state.squarePawnPos[sq];
+		if (pawns.length<1) {
+			return false;
+		}
+		if (sq==WIN_SQUARE || HOME_SQUARES.indexOf(sq)!=-1) {
+			return false; // no hitting in these squares
+		}
+		const diffPlayerPawns = pawns.filter((ps) => ps[0]!=p);
+		return diffPlayerPawns.length>0;
+	}
+	sendPawnHome(sqPos, sq) {
+		const pawn = sqPos[sq][0];
+		let sqPosChanged = sqPos;
+		const [pid,id] = pawn.split("-");
+		sqPosChanged[HOME_SQUARES[Number(pid)]].push(pawn);
+		sqPosChanged[sq] = sqPos[sq].filter((i)=>i!==pawn);
+		console.log(sqPosChanged);
+		return sqPosChanged;
+	}
 	movePawn(p, oldSq, newSq) {
 		//add game conditions here .
 		let sqPos = this.state.squarePawnPos;
-		
+		let pawnHit = false;
 		if (sqPos.hasOwnProperty(newSq)) {
+			let hit = this.checkPawnHit(p[0], newSq)!=false
+			if(hit!=false) {
+				console.log( p+" HIT PAWN "+sqPos[newSq][0]+" at "+newSq);
+				pawnHit = true;
+				sqPos = this.sendPawnHome(sqPos, newSq);
+			}
 			sqPos[newSq].push(p);			
 		} else {
 			sqPos[newSq] = [p];
@@ -83,9 +119,19 @@ class Board extends React.Component {
 		 	delete sqPos[oldSq];
 		}
 		let prevState = this.state;
+		unDoableState = prevState;
 		prevState.squarePawnPos = sqPos;
+		prevState.pawnHit = pawnHit;
 		this.setState(prevState);
-		this.props.updateTurn();
+		this.props.updateTurn(pawnHit, sqPos[newSq]?sqPos[newSq][0]:null);
+		let allPanLocs = {}
+		for( let s of Object.keys(sqPos)) {
+			sqPos[s].forEach((l)=> allPanLocs[l]=s);
+		}
+		storeState("allPawnLocs", allPanLocs);
+	}
+	undo() {
+		console.log(unDoableState)
 	}
 	handleSquareClick(sq){
 		if (this.state.pawnCanMove.hasOwnProperty(sq)) {

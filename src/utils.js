@@ -30,6 +30,13 @@ export const getSessionState = (k) => {
     return sessionStorage.getItem(k);
 };
 
+
+export const clearState = () => {
+  localStorage.clear();
+  sessionStorage.clear();
+}
+
+
 //redux state functions
 export const useValueSetter = (action, prop) => {
   const dispatch = useDispatch();
@@ -40,5 +47,5 @@ export const useValueGetter = (value) => {
   return game[value];
 }
 
-export const {setCurrentPlayer, setDiceValue, setActivePlayer} = gameSlice.actions
+export const {setCurrentPlayer, setDiceValue, setActivePlayer, setAllPawnLocs} = gameSlice.actions
 
